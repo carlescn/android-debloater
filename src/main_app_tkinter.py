@@ -24,6 +24,7 @@ class MainAppTkInter:
         packages = self.package_manager.get_packages()
 
         rows = [(p.short_name, p.full_name, p.installed) for p in packages]
+        rows.sort(key=lambda x: x[1])
 
         self.main_window.update_packages_list(rows)
 
