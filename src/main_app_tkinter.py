@@ -36,6 +36,8 @@ class MainAppTkInter:
     def update_devices_list(self) -> None:
         self.device_manager.update_devices()
         serials = list(self.device_manager.get_devices_serials())
+        if len(serials) == 0:
+            return
         self.main_window.update_devices_list(serials)
         self.update_active_device()
 

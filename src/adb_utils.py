@@ -65,10 +65,14 @@ class AdbUtils:
         try:
             output = LoggingUtils.subprocess_with_logging(cmd, self.__log)
         except OSError:
-            self.__log.exception("Could not update devices")
+            self.__log.exception("Could not list devices")
             return []
 
-        # first and last line are only cosmetic
+        if len(output) < 3:
+            self.__log.error("No devices detected")
+            return []
+
+        # first and last line do not carry device info
         return [line.strip() for line in output[1:-1]]
 
     def list_packages(self, serial: str, params: str = LIST_PACKAGES_I) -> list[str]:

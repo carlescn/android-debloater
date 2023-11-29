@@ -25,6 +25,10 @@ class PackageManager:
         self.__log.debug("Emptied packages list from package manager")
 
     def update_packages(self) -> None:
+        if self.__serial is None:
+            self.__log.error("Not updating packages because device is not set")
+            return
+
         installed   = self.__adb.list_packages(self.__serial, AdbUtils.LIST_PACKAGES_I)
         uninstalled = self.__adb.list_packages(self.__serial, AdbUtils.LIST_PACKAGES_U)
         uninstalled = list(set(uninstalled) - set(installed))
