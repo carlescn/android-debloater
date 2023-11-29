@@ -23,7 +23,7 @@ class MainAppTkInter:
         self.package_manager.update_packages()
         packages = self.package_manager.get_packages()
 
-        rows = [(p.short_name, p.full_name, p.status) for p in packages]
+        rows = [(p.short_name, p.full_name, p.installed) for p in packages]
 
         self.main_window.update_packages_list(rows)
 

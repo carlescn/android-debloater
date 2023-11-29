@@ -4,20 +4,22 @@ from src.logging.logging_utils import LoggingUtils
 
 
 class AdbUtils:
-    BASE          = "base"
-    START_SERVER  = "start_server"
-    KILL_SERVER   = "kill_server"
-    LIST_DEVICES  = "list_devices"
-    LIST_PACKAGES_I = "list_installed_packages"
-    LIST_PACKAGES_U = "list_uninstalled_packages"
+    START_SERVER      = 10
+    KILL_SERVER       = 11
+    LIST_DEVICES      = 20
+    LIST_INSTALLED    = 30
+    LIST_UNINSTALLED  = 31
+    LIST_SYSTEM       = 32
+    LIST_DISABLED     = 33
 
     __params = {
-        BASE           : [],
-        START_SERVER   : ["start-server"],
-        KILL_SERVER    : ["kill-server"],
-        LIST_DEVICES   : ["devices", "-l"],
-        LIST_PACKAGES_I: ["shell", "pm", "list", "packages"],
-        LIST_PACKAGES_U: ["shell", "pm", "list", "packages", "-u"],
+        START_SERVER    : ["start-server"],
+        KILL_SERVER     : ["kill-server"],
+        LIST_DEVICES    : ["devices", "-l"],
+        LIST_INSTALLED  : ["shell", "pm", "list", "packages"],  # "-i" means show the installer
+        LIST_UNINSTALLED: ["shell", "pm", "list", "packages", "-u"],
+        LIST_DISABLED   : ["shell", "pm", "list", "packages", "-d"],
+        LIST_SYSTEM     : ["shell", "pm", "list", "packages", "-s"],
     }
 
     __adb_cmd = "adb"  # TODO: set this depending on environment
@@ -25,13 +27,11 @@ class AdbUtils:
     def __init__(self):
         self.__log = logging.getLogger(__name__)
 
-    def get_cmd(self, command: str = BASE) -> list[str]:
-        params = self.__params.get(command)
-        return [self.__adb_cmd] + params
+    def get_cmd(self, options: int) -> list[str]:
+        return [self.__adb_cmd] + self.__params.get(options, [])
 
-    def get_cmd_with_serial(self, command: str, serial: str = None) -> list[str]:
-        params = ["-s", serial] + self.__params.get(command)
-        return [self.__adb_cmd] + params
+    def get_cmd_with_serial(self, options: int, serial: str = None) -> list[str]:
+        return [self.__adb_cmd, "-s", serial] + self.__params.get(options, [])
 
     def start_server(self):
         cmd = self.get_cmd(self.START_SERVER)
@@ -75,8 +75,8 @@ class AdbUtils:
         # first and last line do not carry device info
         return [line.strip() for line in output[1:-1]]
 
-    def list_packages(self, serial: str, params: str = LIST_PACKAGES_I) -> list[str]:
-        cmd = self.get_cmd_with_serial(params, serial)
+    def list_packages(self, serial: str, options: int = LIST_INSTALLED) -> list[str]:
+        cmd = self.get_cmd_with_serial(options, serial)
 
         self.__log.debug("Listing packages")
         self.__log.debug("Running command: %s", " ".join(cmd))
@@ -86,4 +86,4 @@ class AdbUtils:
             self.__log.exception("Something went wrong when listing packages")
             return []
 
-        return [line.strip() for line in output]
+        return [line.strip().split(":")[-1] for line in output]

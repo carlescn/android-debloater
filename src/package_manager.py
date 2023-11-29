@@ -10,7 +10,7 @@ class PackageManager:
         self.__adb = AdbUtils()
 
         self.__serial: str = None
-        self.__packages: list[Package] = []
+        self.__packages: dict[str, Package] = {}
 
     def set_device(self, serial: str) -> None:
         self.__serial = serial
@@ -18,10 +18,10 @@ class PackageManager:
         self.__log.debug("Set package manager device to '%s'", serial)
 
     def get_packages(self) -> list[Package]:
-        return self.__packages
+        return list(self.__packages.values())
 
     def clear_packages(self) -> None:
-        self.__packages = []
+        self.__packages = {}
         self.__log.debug("Emptied packages list from package manager")
 
     def update_packages(self) -> None:
@@ -29,25 +29,26 @@ class PackageManager:
             self.__log.error("Not updating packages because device is not set")
             return
 
-        installed   = self.__adb.list_packages(self.__serial, AdbUtils.LIST_PACKAGES_I)
-        uninstalled = self.__adb.list_packages(self.__serial, AdbUtils.LIST_PACKAGES_U)
-        uninstalled = list(set(uninstalled) - set(installed))
+        # uninstalled returns both installed and uninstalled packages
+        uninstalled = self.__adb.list_packages(self.__serial, AdbUtils.LIST_UNINSTALLED)
+        self.__packages = {p: Package(full_name=p, installed=False) for p in uninstalled}
 
-        installed_packages  : list[Package] = [self.__get_package_from_str(p, "installed") for p in installed]
-        uninstalled_packages: list[Package] = [self.__get_package_from_str(p, "uninstalled") for p in uninstalled]
+        # installed returns only the installed packages
+        installed = self.__adb.list_packages(self.__serial, AdbUtils.LIST_INSTALLED)
+        for p in installed:
+            self.__packages.get(p).installed = True
 
-        self.__packages = installed_packages + uninstalled_packages
+        disabled = self.__adb.list_packages(self.__serial, AdbUtils.LIST_DISABLED)
+        for p in disabled:
+            self.__packages.get(p).disabled = True
+
+        system = self.__adb.list_packages(self.__serial, AdbUtils.LIST_SYSTEM)
+        for p in system:
+            self.__packages.get(p).system = True
 
         self.__log.info("Packages updated: found " +
-                        f"{len(installed_packages):d} installed, " +
-                        f"{len(uninstalled_packages):d} uninstalled")
-        for package in self.__packages:
+                        f"{len(installed):d} installed, " +
+                        f"{len(uninstalled) - len(installed):d} uninstalled, " +
+                        f"{len(disabled):d} disabled")
+        for package in self.__packages.values():
             self.__log.debug("Package added: %s", package)
-
-    @staticmethod
-    def __get_package_from_str(string: str, status: str) -> Package:
-        full_name = string.split(":")[-1]
-
-        return Package(full_name=full_name,
-                       short_name=full_name.split(".")[-1],
-                       status=status)
