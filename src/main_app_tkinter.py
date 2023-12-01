@@ -1,7 +1,7 @@
 from src.adb_utils import AdbUtils
 from src.device_manager import DeviceManager
 from src.gui.tkinter.main_window import MainWindow
-from src.logging.logging_utils import LoggingUtils
+from src.logging import logging_utils
 from src.package_manager import PackageManager
 
 
@@ -44,7 +44,7 @@ class MainAppTkInter:
 
 
 if __name__ == "__main__":
-    LoggingUtils().load_config()
+    logging_utils.load_config()
 
     AdbUtils().start_server()
 

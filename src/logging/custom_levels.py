@@ -1,5 +1,4 @@
 import logging
 
 
-class CustomLevels:
-    STDOUT = logging.DEBUG - 2
+STDOUT = logging.DEBUG - 2

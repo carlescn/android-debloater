@@ -1,6 +1,6 @@
 import logging
 
-from src.logging.logging_utils import LoggingUtils
+from src.logging import logging_utils
 
 
 class AdbUtils:
@@ -39,7 +39,7 @@ class AdbUtils:
         self.__log.info("Starting ADB server")
         self.__log.debug("Running command: %s", " ".join(cmd))
         try:
-            LoggingUtils.subprocess_with_logging(cmd, self.__log)
+            logging_utils.subprocess_with_logging(cmd, self.__log)
             self.__log.debug("ADB server started")
         except OSError:
             self.__log.exception("Could not start ADB server")
@@ -51,7 +51,7 @@ class AdbUtils:
         self.__log.info("Killing ADB server")
         self.__log.debug("Running command: %s", " ".join(cmd))
         try:
-            LoggingUtils.subprocess_with_logging(cmd, self.__log)
+            logging_utils.subprocess_with_logging(cmd, self.__log)
             self.__log.debug("ADB server killed")
         except OSError:
             self.__log.exception("Could not kill ADB server")
@@ -63,7 +63,7 @@ class AdbUtils:
         self.__log.debug("Listing devices")
         self.__log.debug("Running command: %s", " ".join(cmd))
         try:
-            output = LoggingUtils.subprocess_with_logging(cmd, self.__log)
+            output = logging_utils.subprocess_with_logging(cmd, self.__log)
         except OSError:
             self.__log.exception("Could not list devices")
             return []
@@ -81,7 +81,7 @@ class AdbUtils:
         self.__log.debug("Listing packages")
         self.__log.debug("Running command: %s", " ".join(cmd))
         try:
-            output = LoggingUtils.subprocess_with_logging(cmd, self.__log)
+            output = logging_utils.subprocess_with_logging(cmd, self.__log)
         except OSError:
             self.__log.exception("Something went wrong when listing packages")
             return []

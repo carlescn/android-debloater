@@ -1,6 +1,6 @@
 import logging
 
-from src.logging.custom_levels import CustomLevels
+from src.logging import custom_levels
 
 
 class ColorFormatter(logging.Formatter):
@@ -18,12 +18,12 @@ class ColorFormatter(logging.Formatter):
         self.datefmt = datefmt
         self.fmt = "{color:s}" + fmt + self.reset
         self.level_colors = {
-            CustomLevels.STDOUT: self.blue,
-            logging.DEBUG      : self.grey,
-            logging.INFO       : self.white,
-            logging.WARNING    : self.yellow,
-            logging.ERROR      : self.red,
-            logging.CRITICAL   : self.red_bold,
+            custom_levels.STDOUT: self.blue,
+            logging.DEBUG       : self.grey,
+            logging.INFO        : self.white,
+            logging.WARNING     : self.yellow,
+            logging.ERROR       : self.red,
+            logging.CRITICAL    : self.red_bold,
         }
 
     def format(self, record):
