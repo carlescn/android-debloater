@@ -23,7 +23,7 @@
       "stream": "ext://sys.stdout"
     },
     "file": {
-      "level": "DEBUG",
+      "level": "STDOUT",
       "class": "logging.handlers.WatchedFileHandler",
       "formatter": "simple",
       "filename": "debug.log",
@@ -32,9 +32,14 @@
     }
   },
   "loggers": {
-    "": {
+    "src": {
       "level": "STDOUT",
-      "handlers": [ "console", "file" ]
+      "handlers": [ "console", "file" ],
+      "propagate": false
     }
+  },
+  "root": {
+    "level": "INFO",
+    "handlers": [ "console", "file" ]
   }
 }
