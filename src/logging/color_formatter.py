@@ -26,7 +26,7 @@ class ColorFormatter(logging.Formatter):
             logging.CRITICAL    : self.red_bold,
         }
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         color = self.level_colors.get(record.levelno, self.white)
         fmt = self.fmt.format(color=color)
         formatter = logging.Formatter(fmt=fmt, datefmt=self.datefmt)

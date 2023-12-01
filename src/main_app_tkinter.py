@@ -1,4 +1,4 @@
-from src.adb_utils import AdbUtils
+from src import adb_utils
 from src.device_manager import DeviceManager
 from src.gui.tkinter.main_window import MainWindow
 from src.logging import logging_utils
@@ -28,6 +28,8 @@ class MainAppTkInter:
 
         self.main_window.update_packages_list(rows)
 
+    # *args necessary because ttk.Combobox calls it with some args
+    # noinspection PyUnusedLocal
     def update_active_device(self, *args) -> None:
         device = self.main_window.get_active_device()
         self.device_manager.set_active_device(device)
@@ -46,6 +48,6 @@ class MainAppTkInter:
 if __name__ == "__main__":
     logging_utils.load_config()
 
-    AdbUtils().start_server()
+    adb_utils.start_server()
 
     MainAppTkInter()

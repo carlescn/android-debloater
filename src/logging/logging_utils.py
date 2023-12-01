@@ -17,7 +17,8 @@ def load_config() -> None:
 
 
 def subprocess_with_logging(cmd: list[str], logger: logging.Logger = None) -> list[str]:
-    logger = logging.getLogger(__name__) if logger is None else logger
+    if logger is None:
+        logger = logging.getLogger(__name__)
 
     stdout = []
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) as proc:
