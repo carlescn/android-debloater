@@ -1,6 +1,8 @@
 import logging
 
 from src import adb_utils
+from src import event_handler
+from src.event import Event
 from src.package import Package
 
 log = logging.getLogger(__name__)
@@ -8,8 +10,14 @@ log = logging.getLogger(__name__)
 
 class PackageManager:
     def __init__(self):
+        self.__register_events()
+
         self.__serial: str = None
         self.__packages: dict[str, Package] = {}
+
+    def __register_events(self):
+        event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.set_device)
+        event_handler.register(Event.PACKAGE_LIST_UPDATE_REQUESTED, self.update_packages)
 
     def set_device(self, serial: str) -> None:
         self.__serial = serial
@@ -51,3 +59,5 @@ class PackageManager:
                  f"{len(disabled):d} disabled")
         for package in self.__packages.values():
             log.debug("Package added: %s", package)
+
+        event_handler.fire(Event.PACKAGE_LIST_UPDATED, packages=self.get_packages())

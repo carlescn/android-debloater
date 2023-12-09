@@ -1,11 +1,15 @@
 from tkinter import ttk
 
+from src import event_handler
+from src.event import Event
 from src.gui.tkinter.scrollable import Scrollable
+from src.package import Package
 
 
 class PackagesFrame(ttk.Frame):
     def __init__(self, master: ttk.Frame):
         super().__init__(master)
+        self.__register_events()
 
         self.rows = []
         self.columns = [
@@ -33,19 +37,9 @@ class PackagesFrame(ttk.Frame):
 
         self.update()
 
-    def __add_single_row(self, labels) -> None:
-        n = len(self.rows)
-
-        row = [ttk.Label(self.scrollable, text=label) for label in labels]
-        for j, cell in enumerate(row):
-            cell.grid(row=n, column=j)
-
-        self.rows.append(row)
-
-    def add_rows(self, rows: tuple | list) -> None:
-        for row in rows:
-            self.__add_single_row(row)
-        self.update()
+    def __register_events(self):
+        event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.clear_package_list)
+        event_handler.register(Event.PACKAGE_LIST_UPDATED, self.update_package_list)
 
     def update(self):
         for col in self.columns:
@@ -55,10 +49,25 @@ class PackagesFrame(ttk.Frame):
             self.scrollable.columnconfigure(index=i, minsize=width, weight=0)
         self.scrollable.update()
 
-    def clear(self):
+    def clear_package_list(self, *args, **kwargs) -> None:
         for row in self.rows:
             for label in row:
                 label.destroy()
 
         self.rows = []
+        self.update()
+
+    def update_package_list(self, packages: list[Package]) -> None:
+        self.clear_package_list()
+
+        packages_info = [(p.short_name, p.full_name, p.installed) for p in packages]
+        packages_info.sort(key=lambda x: x[1])
+        for i, labels in enumerate(packages_info):
+            row = []
+            for j, label in enumerate(labels):
+                cell = ttk.Label(self.scrollable, text=label)
+                cell.grid(row=i, column=j)
+                row.append(cell)
+            self.rows.append(row)
+
         self.update()

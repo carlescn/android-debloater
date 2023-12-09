@@ -1,15 +1,23 @@
 import logging
 
 from src import adb_utils
+from src import event_handler
 from src.device import Device
+from src.event import Event
 
 log = logging.getLogger(__name__)
 
 
 class DeviceManager:
     def __init__(self):
+        self.__register_events()
+
         self.__devices: list[Device] = []
         self.__active_device: Device = None
+
+    def __register_events(self):
+        event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.set_active_device)
+        event_handler.register(Event.DEVICE_LIST_UPDATE_REQUESTED, self.update_devices)
 
     def get_devices_serials(self) -> list[str]:
         return [d.serial for d in self.__devices]
@@ -44,6 +52,9 @@ class DeviceManager:
         log.info("Devices updated: found %d device(s)", len(self.__devices))
         for device in self.__devices:
             log.debug("Device added: %s", device)
+
+        if len(self.__devices) > 0:
+            event_handler.fire(Event.DEVICE_LIST_UPDATED, serials=self.get_devices_serials())
 
     @staticmethod
     def parse_adb_line(line: str) -> dict[str: str]:
