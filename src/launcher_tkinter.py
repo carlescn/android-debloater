@@ -1,6 +1,6 @@
 from src import adb_utils
 from src.device_manager import DeviceManager
-from src.gui.tkinter.main_window import MainWindow
+from src.gui.tkinter.window_main import WindowMain
 from src.logging import logging_utils
 from src.package_manager import PackageManager
 
@@ -15,4 +15,4 @@ if __name__ == "__main__":
     PackageManager()
 
     # Initialize window and run main loop
-    MainWindow().mainloop()
+    WindowMain().mainloop()
