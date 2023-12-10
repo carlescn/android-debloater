@@ -22,7 +22,7 @@ class FramePackages(ttk.LabelFrame):
         self.__register_events()
 
         # Tree view
-        self.tree = ttk.Treeview(self, show=["headings"])
+        self.tree = ttk.Treeview(self, show=["headings"], selectmode="none", height=20)
         self.tree.pack(pady=(0, PADDING_OUTER))
         self.__setup_treeview()
 
@@ -49,6 +49,9 @@ class FramePackages(ttk.LabelFrame):
         for col in self.COLUMNS:
             self.tree.heading(col.get("id"), text=col.get("text"))
             self.tree.column(col.get("id"), width=col.get("width"), anchor=col.get("anchor"))
+
+        # Actions
+        self.tree.bind("<Button-1>", self.update_selection)
 
     @staticmethod
     def __btn_update_action(*args, **kwargs) -> None:
@@ -85,3 +88,8 @@ class FramePackages(ttk.LabelFrame):
             self.tree.insert(parent="", index="end", iid=p.full_name, values=values)
 
         self.enable_btn_clear()
+
+    def update_selection(self, event) -> None:
+        item = self.tree.identify_row(event.y)
+        self.tree.selection_toggle(item)
+        self.tree.focus(item)
