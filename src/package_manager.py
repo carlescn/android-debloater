@@ -37,19 +37,19 @@ class PackageManager:
             return
 
         # uninstalled returns both installed and uninstalled packages
-        uninstalled = adb_utils.list_packages(self.__serial, adb_utils.LIST_UNINSTALLED)
+        uninstalled = adb_utils.list_packages_uninstalled(self.__serial)
         self.__packages = {p: Package(full_name=p, installed=False) for p in uninstalled}
 
         # installed returns only the installed packages
-        installed = adb_utils.list_packages(self.__serial, adb_utils.LIST_INSTALLED)
+        installed = adb_utils.list_packages_installed(self.__serial)
         for p in installed:
             self.__packages.get(p).installed = True
 
-        disabled = adb_utils.list_packages(self.__serial, adb_utils.LIST_DISABLED)
+        disabled = adb_utils.list_packages_disabled(self.__serial)
         for p in disabled:
             self.__packages.get(p).disabled = True
 
-        system = adb_utils.list_packages(self.__serial, adb_utils.LIST_SYSTEM)
+        system = adb_utils.list_packages_system(self.__serial)
         for p in system:
             self.__packages.get(p).system = True
 

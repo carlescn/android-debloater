@@ -2,14 +2,18 @@ import logging
 
 from src.logging import logging_utils
 
-ADB_COMMAND       = ["adb"]  # TODO: set this depending on environment
-START_SERVER      = ["start-server"]
-KILL_SERVER       = ["kill-server"]
-LIST_DEVICES      = ["devices", "-l"]
-LIST_INSTALLED    = ["shell", "pm", "list", "packages"]  # "-i" means show the installer
-LIST_UNINSTALLED  = ["shell", "pm", "list", "packages", "-u"]
-LIST_SYSTEM       = ["shell", "pm", "list", "packages", "-d"]
-LIST_DISABLED     = ["shell", "pm", "list", "packages", "-s"]
+ADB_COMMAND  = ["adb"]  # TODO: set this depending on environment
+
+START_SERVER = ["start-server"]
+KILL_SERVER  = ["kill-server"]
+
+LIST_DEVICES = ["devices", "-l"]
+
+LIST_PACKAGES = ["shell", "pm", "list", "packages"]
+# By default, it returns the installed packages list. Option "-i" means show the installer.
+LIST_OPT_UNINSTALLED = ["-u"]
+LIST_OPT_SYSTEM      = ["-d"]
+LIST_OPT_DISABLED    = ["-s"]
 
 log = logging.getLogger(__name__)
 
@@ -59,11 +63,10 @@ def list_devices() -> list[str]:
     return [line.strip() for line in output[1:-1]]
 
 
-def list_packages(serial: str, options: list[str] = None) -> list[str]:
-    if options is None:
-        options = LIST_INSTALLED
+def __list_packages(serial: str, options: list[str] | None = None) -> list[str]:
+    options = [] if options is None else options
 
-    cmd = ADB_COMMAND + ["-s", serial] + options
+    cmd = ADB_COMMAND + ["-s", serial] + LIST_PACKAGES + options
 
     log.debug("Listing packages")
     log.debug("Running command: %s", " ".join(cmd))
@@ -74,3 +77,19 @@ def list_packages(serial: str, options: list[str] = None) -> list[str]:
         return []
 
     return [line.strip().split(":")[-1] for line in output]
+
+
+def list_packages_installed(serial: str) -> list[str]:
+    return __list_packages(serial, None)
+
+
+def list_packages_uninstalled(serial: str) -> list[str]:
+    return __list_packages(serial, LIST_OPT_UNINSTALLED)
+
+
+def list_packages_system(serial: str) -> list[str]:
+    return __list_packages(serial, LIST_OPT_SYSTEM)
+
+
+def list_packages_disabled(serial: str) -> list[str]:
+    return __list_packages(serial, LIST_OPT_DISABLED)
