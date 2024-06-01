@@ -5,7 +5,7 @@ from src.logging import logging_utils
 from src.package_manager import PackageManager
 
 
-if __name__ == "__main__":
+def main() -> None:
     logging_utils.load_config()
 
     adb_utils.start_server()
@@ -16,3 +16,7 @@ if __name__ == "__main__":
 
     # Initialize window and run main loop
     WindowMain().mainloop()
+
+
+if __name__ == "__main__":
+    main()

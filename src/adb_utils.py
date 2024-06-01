@@ -15,6 +15,10 @@ LIST_OPT_UNINSTALLED = ["-u"]
 LIST_OPT_SYSTEM      = ["-d"]
 LIST_OPT_DISABLED    = ["-s"]
 
+UNINSTALL_PACKAGE  = ["shell", "pm", "uninstall"]
+UNINSTALL_OPT_USER = ["--user 0"]
+UNINSTALL_OPT_KEEP = ["-k"]
+
 log = logging.getLogger(__name__)
 
 
@@ -93,3 +97,7 @@ def list_packages_system(serial: str) -> list[str]:
 
 def list_packages_disabled(serial: str) -> list[str]:
     return __list_packages(serial, LIST_OPT_DISABLED)
+
+
+# def uninstall_apk() -> None:
+#     cmd = ADB_COMMAND + UNINSTALL
