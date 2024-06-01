@@ -1,5 +1,6 @@
 import tkinter as tk
 from collections.abc import Iterable
+from dataclasses import dataclass, field
 from tkinter import ttk
 
 from src import event_handler
@@ -7,13 +8,22 @@ from src.event import Event
 from src.gui.tkinter.constants import PADDING_INNER, PADDING_OUTER
 from src.package import Package
 
-COLUMNS = [
-    {"id": "package",        "text": "package",        "width": 400, "anchor": "w"},
-    {"id": "short_name",     "text": "name",           "width": 200, "anchor": "w"},
-    {"id": "installed",      "text": "installed",      "width": 100, "anchor": "center"},
-    {"id": "disabled",       "text": "disabled",       "width": 100, "anchor": "center"},
-    {"id": "system",         "text": "system",         "width": 100, "anchor": "center"},
-    {"id": "safe_to_remove", "text": "safe to remove", "width": 100, "anchor": "center"},
+
+@dataclass
+class Column:
+    id     : str = field()
+    text   : str = field()
+    width  : int = field()
+    anchor : str = field()
+
+
+COLUMNS: list[Column] = [
+    Column(id="package",        text="package",        width=400, anchor="w"),
+    Column(id="short_name",     text="name",           width=200, anchor="w"),
+    Column(id="installed",      text="installed",      width=100, anchor="center"),
+    Column(id="disabled",       text="disabled",       width=100, anchor="center"),
+    Column(id="system",         text="system",         width=100, anchor="center"),
+    Column(id="safe_to_remove", text="safe to remove", width=100, anchor="center"),
 ]
 
 SYMBOL_SORTED_DESC = " \u25BE"  # utf-8 hex for triangle pointing down
@@ -37,14 +47,14 @@ class FramePackages(ttk.LabelFrame):
     def __make_treeview(self) -> None:
         self.tree = ttk.Treeview(self, show=["headings"], selectmode="none", height=20)
         # Columns and headers
-        self.tree["columns"] = [c.get("id") for c in COLUMNS]
+        self.tree["columns"] = [c.id for c in COLUMNS]
         for col in COLUMNS:
-            self.tree.heading(column=col.get("id"),
-                              text=col.get("text"),
-                              command=lambda c=col.get("id"): self.sort_by_column(c))
-            self.tree.column(column=col.get("id"),
-                             width=col.get("width"),
-                             anchor=col.get("anchor"))
+            self.tree.heading(column=col.id,
+                              text=col.text,
+                              command=lambda c=col.id: self.sort_by_column(c))  # type: ignore
+            self.tree.column(column=col.id,  # type: ignore
+                             width=col.width,
+                             anchor=col.anchor)
         # Actions
         self.tree.bind("<Button-1>", self.update_selection)
 
@@ -100,7 +110,7 @@ class FramePackages(ttk.LabelFrame):
             )
             self.tree.insert(parent="", index="end", iid=p.full_name, values=values)
 
-        self.sort_by_column(COLUMNS[0].get("id"), False)
+        self.sort_by_column(COLUMNS[0].id, False)
 
         self.btns_enable_on_fill_list()
 
@@ -117,7 +127,7 @@ class FramePackages(ttk.LabelFrame):
         self.tree.selection_toggle(item)
         self.tree.focus(item)
 
-    def sort_by_column(self, column: str, reverse: bool = None) -> None:
+    def sort_by_column(self, column: str, reverse: bool | None = None) -> None:
         if reverse is None:
             reverse = self.tree.heading(column, "text").endswith(SYMBOL_SORTED_DESC)
 
@@ -130,8 +140,8 @@ class FramePackages(ttk.LabelFrame):
         # Update headers
         suffix = SYMBOL_SORTED_ASC if reverse else SYMBOL_SORTED_DESC
         for col in COLUMNS:
-            text = col.get("text") + (suffix if col.get("id") == column else "")
-            self.tree.heading(col.get("id"), text=text)
+            text = col.text + (suffix if col.id == column else "")
+            self.tree.heading(col.id, text=text)
 
     # Button methods
 
@@ -160,13 +170,13 @@ class FramePackages(ttk.LabelFrame):
         self.btn_disable.state([tk.DISABLED])
 
     def __btn_uninstall_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_UNINSTALL_REQUESTED, packages=self.get_selection())
+        event_handler.fire(Event.PACKAGE_UNINSTALL_REQUESTED, package_ids=self.get_selection())
 
     def __btn_reinstall_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_REINSTALL_REQUESTED, packages=self.get_selection())
+        event_handler.fire(Event.PACKAGE_REINSTALL_REQUESTED, package_ids=self.get_selection())
 
     def __btn_enable_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_ENABLE_REQUESTED, packages=self.get_selection())
+        event_handler.fire(Event.PACKAGE_ENABLE_REQUESTED, package_ids=self.get_selection())
 
     def __btn_disable_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_DISABLE_REQUESTED, packages=self.get_selection())
+        event_handler.fire(Event.PACKAGE_DISABLE_REQUESTED, package_ids=self.get_selection())

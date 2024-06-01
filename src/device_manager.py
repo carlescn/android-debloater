@@ -9,11 +9,11 @@ log = logging.getLogger(__name__)
 
 
 class DeviceManager:
-    def __init__(self):
+    def __init__(self) -> None:
         self.__register_events()
 
         self.__devices: list[Device] = []
-        self.__active_device: Device = None
+        self.__active_device: Device | None = None
 
     def __register_events(self):
         event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.set_active_device)
@@ -22,7 +22,7 @@ class DeviceManager:
     def get_devices_serials(self) -> list[str]:
         return [d.serial for d in self.__devices]
 
-    def get_active_device(self) -> Device:
+    def get_active_device(self) -> Device | None:
         return self.__active_device
 
     def get_device_from_serial(self, serial: str) -> Device:
@@ -57,7 +57,7 @@ class DeviceManager:
             event_handler.fire(Event.DEVICE_LIST_UPDATED, serials=self.get_devices_serials())
 
     @staticmethod
-    def parse_adb_line(line: str) -> dict[str: str]:
+    def parse_adb_line(line: str) -> dict[str, str]:
         items = [item.split(":") for item in line.split()]
         items[0].insert(0, "serial")
         items[1].insert(0, "status")
@@ -72,11 +72,11 @@ class DeviceManager:
     @staticmethod
     def get_device_from_dict(features: dict) -> Device:
         return Device(
-            serial      =features.get("serial"),
-            model       =features.get("model"),
-            device      =features.get("device"),
-            status      =features.get("status"),
-            usb         =features.get("usb"),
-            product     =features.get("product"),
-            transport_id=features.get("transport_id"),
+            serial      =features.get("serial", ""),
+            model       =features.get("model", ""),
+            device      =features.get("device", ""),
+            status      =features.get("status", ""),
+            usb         =features.get("usb", ""),
+            product     =features.get("product", ""),
+            transport_id=features.get("transport_id", ""),
         )

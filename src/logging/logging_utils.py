@@ -16,16 +16,18 @@ def load_config() -> None:
     logging.config.dictConfig(config)
 
 
-def subprocess_with_logging(cmd: list[str], logger: logging.Logger = None) -> list[str]:
+def subprocess_with_logging(cmd: list[str], logger: logging.Logger | None = None) -> list[str]:
     if logger is None:
         logger = logging.getLogger(__name__)
 
     stdout = []
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) as proc:
-        for line in proc.stdout:
-            stdout.append(line.strip())
-            logger.log(custom_levels.STDOUT, line.strip())
-        for line in proc.stderr:
-            logger.error(line.strip())
+        if proc.stdout is not None:
+            for line in proc.stdout:
+                stdout.append(line.strip())
+                logger.log(custom_levels.STDOUT, line.strip())
+        if proc.stderr is not None:
+            for line in proc.stderr:
+                logger.error(line.strip())
 
     return stdout

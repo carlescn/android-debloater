@@ -12,7 +12,7 @@ class PackageManager:
     def __init__(self):
         self.__register_events()
 
-        self.__serial: str = None
+        self.__serial: str | None = None
         self.__packages: dict[str, Package] = {}
 
     def __register_events(self):
@@ -43,15 +43,15 @@ class PackageManager:
         # installed returns only the installed packages
         installed = adb_utils.list_packages_installed(self.__serial)
         for p in installed:
-            self.__packages.get(p).installed = True
+            self.__packages[p].installed = True
 
         disabled = adb_utils.list_packages_disabled(self.__serial)
         for p in disabled:
-            self.__packages.get(p).disabled = True
+            self.__packages[p].disabled = True
 
         system = adb_utils.list_packages_system(self.__serial)
         for p in system:
-            self.__packages.get(p).system = True
+            self.__packages[p].system = True
 
         log.info("Packages updated: found " +
                  f"{len(installed):d} installed, " +

@@ -8,8 +8,8 @@ class Package:
     disabled      : bool = field(compare=False, default=False)
     system        : bool = field(compare=False, default=False)
     safe_to_remove: bool = field(compare=False, default=False)
-    short_name    : str  = field(compare=False, default=None)
-    description   : str  = field(compare=False, default="")
+    short_name    : str | None = field(compare=False, default=None)
+    description   : str | None = field(compare=False, default=None)
 
     def __post_init__(self):
         if self.short_name is None:

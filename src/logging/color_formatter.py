@@ -1,4 +1,5 @@
 import logging
+from typing import Literal
 
 from src.logging import custom_levels
 
@@ -13,7 +14,7 @@ class ColorFormatter(logging.Formatter):
     red_bold = "\033[91;1m"
     reset    = "\033[0m"
 
-    def __init__(self, fmt: str, datefmt: str, style: chr):
+    def __init__(self, fmt: str, datefmt: str, style: Literal['%', '{', '$']):
         super().__init__(fmt=fmt, datefmt=datefmt, style=style)
         self.datefmt = datefmt
         self.fmt = "{color:s}" + fmt + self.reset
