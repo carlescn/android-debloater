@@ -26,7 +26,6 @@ def start_server() -> None:
     cmd = ADB_COMMAND + START_SERVER
 
     log.info("Starting ADB server")
-    log.debug("Running command: %s", " ".join(cmd))
     try:
         logging_utils.subprocess_with_logging(cmd, log)
         log.debug("ADB server started")
@@ -39,7 +38,6 @@ def kill_server() -> None:
     cmd = ADB_COMMAND + KILL_SERVER
 
     log.info("Killing ADB server")
-    log.debug("Running command: %s", " ".join(cmd))
     try:
         logging_utils.subprocess_with_logging(cmd, log)
         log.debug("ADB server killed")
@@ -52,7 +50,6 @@ def list_devices() -> list[str]:
     cmd = ADB_COMMAND + LIST_DEVICES
 
     log.debug("Listing devices")
-    log.debug("Running command: %s", " ".join(cmd))
     try:
         output = logging_utils.subprocess_with_logging(cmd, log)
     except OSError:
@@ -72,8 +69,6 @@ def __list_packages(serial: str, options: list[str] | None = None) -> list[str]:
 
     cmd = ADB_COMMAND + ["-s", serial] + LIST_PACKAGES + options
 
-    log.debug("Listing packages")
-    log.debug("Running command: %s", " ".join(cmd))
     try:
         output = logging_utils.subprocess_with_logging(cmd, log)
     except OSError:
@@ -84,18 +79,22 @@ def __list_packages(serial: str, options: list[str] | None = None) -> list[str]:
 
 
 def list_packages_installed(serial: str) -> list[str]:
+    log.debug("Listing installed packages")
     return __list_packages(serial, None)
 
 
 def list_packages_uninstalled(serial: str) -> list[str]:
+    log.debug("Listing uninstalled packages")
     return __list_packages(serial, LIST_OPT_UNINSTALLED)
 
 
 def list_packages_system(serial: str) -> list[str]:
+    log.debug("Listing system packages")
     return __list_packages(serial, LIST_OPT_SYSTEM)
 
 
 def list_packages_disabled(serial: str) -> list[str]:
+    log.debug("Listing disabled packages")
     return __list_packages(serial, LIST_OPT_DISABLED)
 
 

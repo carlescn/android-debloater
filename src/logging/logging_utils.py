@@ -20,6 +20,8 @@ def subprocess_with_logging(cmd: list[str], logger: logging.Logger | None = None
     if logger is None:
         logger = logging.getLogger(__name__)
 
+    logger.debug("Running command: %s", " ".join(cmd))
+
     stdout = []
     with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True) as proc:
         if proc.stdout is not None:
