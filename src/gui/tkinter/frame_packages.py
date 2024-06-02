@@ -91,7 +91,7 @@ class FramePackages(ttk.LabelFrame):
 
     # List methods
 
-    def clear_package_list(self, *args, **kwargs) -> None:
+    def clear_package_list(self) -> None:
         for item in self.tree.get_children():
             self.tree.delete(item)
         self.btns_disable_on_clear_list()
@@ -145,7 +145,7 @@ class FramePackages(ttk.LabelFrame):
 
     # Button methods
 
-    def btn_update_enable(self, *args, **kwargs) -> None:
+    def btn_update_enable(self) -> None:
         self.btn_update.state(["!" + tk.DISABLED])
 
     def btn_update_disable(self, *args, **kwargs) -> None:

@@ -5,12 +5,15 @@ from src import event_handler
 from src.event import Event
 from src.gui.tkinter.constants import PADDING_INNER
 from src.device import Device
+from src.protocols import DeviceManager
 
 
 class FrameDevices(ttk.LabelFrame):
-    def __init__(self, master: ttk.Frame, padding: int = 0):
+    def __init__(self, device_manager: DeviceManager, master: ttk.Frame, padding: int = 0):
         super().__init__(master=master, padding=padding, text="Devices")
         self.__register_events()
+
+        self.__device_manager = device_manager
 
         # Label
         ttk.Label(self, text="Active device:").pack(side=tk.LEFT, padx=(0, PADDING_INNER))
@@ -22,37 +25,38 @@ class FrameDevices(ttk.LabelFrame):
 
         # Update button
         self.btn_clear = ttk.Button(master=self, padding=PADDING_INNER, text="Update list",
-                                    command=self.__btn_update_action)
+                                    command=self.__device_manager.update_devices)
         self.btn_clear.pack(side=tk.RIGHT, padx=(PADDING_INNER, 0))
 
-        # Device info
-        self.var_device_info = tk.StringVar()
-        ttk.Label(self, textvariable=self.var_device_info).pack(side=tk.LEFT, padx=PADDING_INNER)
-        self.reset_active_device_info()
+        # Device displayed info
+        self.displayed_info = tk.StringVar()
+        ttk.Label(self, textvariable=self.displayed_info).pack(side=tk.LEFT, padx=PADDING_INNER)
+        self.reset_displayed_info()
 
     def __register_events(self):
         event_handler.register(Event.DEVICE_LIST_UPDATED, self.reset_device_list)
-        event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.update_active_device_info)
 
     def __cmb_devices_selected_action(self, *args, **kwargs):
-        event_handler.fire(Event.ACTIVE_DEVICE_UPDATE_REQUESTED, serial=self.get_active_device())
-
-    @staticmethod
-    def __btn_update_action(*args, **kwargs) -> None:
-        event_handler.fire(Event.DEVICE_LIST_UPDATE_REQUESTED)
+        serial = self.get_selected_device()
+        self.__device_manager.set_active_device(serial)
+        self.update_displayed_info()
 
     def reset_device_list(self, devices: list[Device]) -> None:
-        self.reset_active_device_info()
+        self.reset_displayed_info()
 
         self.cmb_devices["values"] = [d.serial for d in devices]
         self.cmb_devices.current(0)
         self.__cmb_devices_selected_action()
 
-    def reset_active_device_info(self) -> None:
-        self.var_device_info.set("No active device has been set")
+    def reset_displayed_info(self) -> None:
+        self.displayed_info.set("No active device has been set")
 
-    def update_active_device_info(self, device: Device) -> None:
-        self.var_device_info.set(f"Name: {device.name} | Release: {device.release}")
+    def update_displayed_info(self) -> None:
+        device = self.__device_manager.get_active_device()
+        if device is None:
+            self.reset_displayed_info()
+            return
+        self.displayed_info.set(f"Name: {device.name} | Release: {device.release}")
 
-    def get_active_device(self) -> str:
+    def get_selected_device(self) -> str:
         return self.cmb_devices.get()

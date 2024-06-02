@@ -10,14 +10,8 @@ log = logging.getLogger(__name__)
 
 class DeviceManager:
     def __init__(self) -> None:
-        self.__register_events()
-
         self.__devices: list[Device] = []
         self.__active_device: Device | None = None
-
-    def __register_events(self):
-        event_handler.register(Event.ACTIVE_DEVICE_UPDATE_REQUESTED, self.set_active_device)
-        event_handler.register(Event.DEVICE_LIST_UPDATE_REQUESTED, self.update_devices)
 
     def get_devices_serials(self) -> list[str]:
         return [d.serial for d in self.__devices]
@@ -41,7 +35,7 @@ class DeviceManager:
         try:
             self.__active_device = self.get_device_from_serial(serial)
             log.info("Active device is set to '%s'", serial)
-            event_handler.fire(Event.ACTIVE_DEVICE_UPDATED, self.__active_device)
+            event_handler.fire(Event.ACTIVE_DEVICE_UPDATED)
         except ValueError:
             self.__active_device = None
 

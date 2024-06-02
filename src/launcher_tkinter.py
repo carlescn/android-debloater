@@ -11,11 +11,11 @@ def main() -> None:
     adb_utils.start_server()
 
     # Initialize managers
-    DeviceManager()
-    PackageManager()
+    device_manager = DeviceManager()
+    package_manager = PackageManager(device_manager)
 
     # Initialize window and run main loop
-    WindowMain().mainloop()
+    WindowMain(device_manager).mainloop()
 
 
 if __name__ == "__main__":
