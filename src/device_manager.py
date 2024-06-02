@@ -16,7 +16,7 @@ class DeviceManager:
         self.__active_device: Device | None = None
 
     def __register_events(self):
-        event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.set_active_device)
+        event_handler.register(Event.ACTIVE_DEVICE_UPDATE_REQUESTED, self.set_active_device)
         event_handler.register(Event.DEVICE_LIST_UPDATE_REQUESTED, self.update_devices)
 
     def get_devices_serials(self) -> list[str]:
@@ -41,20 +41,32 @@ class DeviceManager:
         try:
             self.__active_device = self.get_device_from_serial(serial)
             log.info("Active device is set to '%s'", serial)
+            event_handler.fire(Event.ACTIVE_DEVICE_UPDATED, self.__active_device)
         except ValueError:
             self.__active_device = None
 
     def update_devices(self) -> None:
-        raw_devices    = adb_utils.list_devices()
-        parsed_devices = [self.parse_adb_line(line) for line in raw_devices]
-        self.__devices = [self.get_device_from_dict(d) for d in parsed_devices]
+        raw_devices = adb_utils.list_devices()
+        self.__devices = [self.get_device_from_adb_line(line) for line in raw_devices]
 
         log.info("Devices updated: found %d device(s)", len(self.__devices))
-        for device in self.__devices:
+        for device in self.__devices:  # type: ignore
             log.debug("Device added: %s", device)
 
         if len(self.__devices) > 0:
-            event_handler.fire(Event.DEVICE_LIST_UPDATED, serials=self.get_devices_serials())
+            event_handler.fire(Event.DEVICE_LIST_UPDATED, devices=self.__devices)
+
+    def get_device_from_adb_line(self, line: str) -> Device:
+        device = self.parse_adb_line(line)
+
+        properties = {
+            "release": adb_utils.get_device_release(device["serial"]),
+            "name": adb_utils.get_device_name(device["serial"])
+        }
+        filtered_properties = {k: v for k, v in properties.items() if v is not None}
+        device.update(filtered_properties)
+
+        return self.get_device_from_dict(device)
 
     @staticmethod
     def parse_adb_line(line: str) -> dict[str, str]:
@@ -71,12 +83,15 @@ class DeviceManager:
 
     @staticmethod
     def get_device_from_dict(features: dict) -> Device:
+        default_value = "UNKNOWN"
         return Device(
-            serial      =features.get("serial", ""),
-            model       =features.get("model", ""),
-            device      =features.get("device", ""),
-            status      =features.get("status", ""),
-            usb         =features.get("usb", ""),
-            product     =features.get("product", ""),
-            transport_id=features.get("transport_id", ""),
+            serial      =features.get("serial", default_value),
+            model       =features.get("model", default_value),
+            device      =features.get("device", default_value),
+            status      =features.get("status", default_value),
+            usb         =features.get("usb", default_value),
+            product     =features.get("product", default_value),
+            transport_id=features.get("transport_id", default_value),
+            release     =features.get("release", default_value),
+            name        =features.get("name", default_value),
         )

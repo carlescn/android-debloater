@@ -10,3 +10,5 @@ class Device:
     usb         : str = field(compare=False)
     product     : str = field(compare=False)
     transport_id: str = field(compare=False)
+    release     : str = field(compare=False)
+    name        : str = field(compare=False)

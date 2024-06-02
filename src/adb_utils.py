@@ -9,6 +9,11 @@ KILL_SERVER  = ["kill-server"]
 
 LIST_DEVICES = ["devices", "-l"]
 
+GET_DEVICE_PROPERTY = ["shell", "getprop"]
+DEVICE_PROPERTY_RELEASE     = "ro.build.version.release"
+DEVICE_PROPERTY_NAME        = "ro.product.name"
+DEVICE_PROPERTY_MARKET_NAME = "ro.product.marketname"
+
 LIST_PACKAGES = ["shell", "pm", "list", "packages"]
 # By default, it returns the installed packages list. Option "-i" means show the installer.
 LIST_OPT_UNINSTALLED = ["-u"]
@@ -97,6 +102,34 @@ def list_packages_disabled(serial: str) -> list[str]:
     log.debug("Listing disabled packages")
     return __list_packages(serial, LIST_OPT_DISABLED)
 
+
+def __get_device_property(serial: str, prop: str) -> str | None:
+    cmd = ADB_COMMAND + ["-s", serial] + GET_DEVICE_PROPERTY + [prop]
+
+    try:
+        output = logging_utils.subprocess_with_logging(cmd, log)
+    except OSError:
+        log.exception("Something went wrong getting device property '%s'", prop)
+        return None
+
+    if len(output) == 1 and output[0] == "":
+        log.error("Device property '%s' did not return anything", prop)
+        return None
+
+    return output[0]
+
+
+def get_device_release(serial: str) -> str | None:
+    log.debug("Getting device release version")
+    return __get_device_property(serial, DEVICE_PROPERTY_RELEASE)
+
+
+def get_device_name(serial: str) -> str | None:
+    log.debug("Getting device name")
+    market_name = __get_device_property(serial, DEVICE_PROPERTY_MARKET_NAME)
+    name = __get_device_property(serial, DEVICE_PROPERTY_NAME)
+
+    return name if market_name is None else market_name
 
 # def uninstall_apk() -> None:
 #     cmd = ADB_COMMAND + UNINSTALL

@@ -16,7 +16,7 @@ class PackageManager:
         self.__packages: dict[str, Package] = {}
 
     def __register_events(self):
-        event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.set_device)
+        event_handler.register(Event.ACTIVE_DEVICE_UPDATE_REQUESTED, self.set_device)
         event_handler.register(Event.PACKAGE_LIST_UPDATE_REQUESTED, self.update_packages)
 
     def set_device(self, serial: str) -> None:
