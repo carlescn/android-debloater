@@ -7,10 +7,11 @@ from src.gui.tkinter.constants import PADDING_OUTER
 from src.gui.tkinter.frame_devices import FrameDevices
 from src.gui.tkinter.frame_packages import FramePackages
 from src.protocols import DeviceManager
+from src.protocols import PackageManager
 
 
 class WindowMain:
-    def __init__(self, device_manager: DeviceManager):
+    def __init__(self, device_manager: DeviceManager, package_manager: PackageManager):
         # Main window
         self.window = ThemedTk(theme="scidgrey")
         self.window.title("Android Debloater")
@@ -23,7 +24,7 @@ class WindowMain:
         frm_devices.pack(anchor="nw", fill=tk.X, pady=(0, PADDING_OUTER))
 
         # Packages list
-        frm_packages = FramePackages(master=frm_main, padding=PADDING_OUTER)
+        frm_packages = FramePackages(package_manager=package_manager, master=frm_main, padding=PADDING_OUTER)
         frm_packages.pack()
 
         # Run on startup

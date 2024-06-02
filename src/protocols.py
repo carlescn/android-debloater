@@ -19,4 +19,5 @@ class DeviceManager(DeviceGetter, DeviceSetter):
 
 
 class PackageManager(Protocol):
-    pass
+    def update_packages(self) -> None:
+        pass

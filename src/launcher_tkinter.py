@@ -15,7 +15,7 @@ def main() -> None:
     package_manager = PackageManager(device_manager)
 
     # Initialize window and run main loop
-    WindowMain(device_manager).mainloop()
+    WindowMain(device_manager, package_manager).mainloop()
 
 
 if __name__ == "__main__":

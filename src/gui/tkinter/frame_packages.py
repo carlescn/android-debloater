@@ -7,6 +7,7 @@ from src import event_handler
 from src.event import Event
 from src.gui.tkinter.constants import PADDING_INNER, PADDING_OUTER
 from src.package import Package
+from src.protocols import PackageManager
 
 
 @dataclass
@@ -31,9 +32,11 @@ SYMBOL_SORTED_ASC  = " \u25B4"  # utf-8 hex for triangle pointing up
 
 
 class FramePackages(ttk.LabelFrame):
-    def __init__(self, master: ttk.Frame, padding: int = 0):
+    def __init__(self, package_manager: PackageManager, master: ttk.Frame, padding: int = 0):
         super().__init__(master=master, padding=padding, text="Packages")
         self.__register_events()
+
+        self.__package_manager = package_manager
 
         self.__make_treeview()
         self.__make_buttons()
@@ -62,7 +65,7 @@ class FramePackages(ttk.LabelFrame):
         # List actions
         self.btn_update = ttk.Button(master=self, padding=PADDING_INNER, state=tk.DISABLED,
                                      text="Update list",
-                                     command=self.__btn_update_action)
+                                     command=self.__package_manager.update_packages)
         self.btn_clear = ttk.Button(master=self, padding=PADDING_INNER, state=tk.DISABLED,
                                     text="Clear selection",
                                     command=self.clear_selection)
@@ -148,21 +151,17 @@ class FramePackages(ttk.LabelFrame):
     def btn_update_enable(self) -> None:
         self.btn_update.state(["!" + tk.DISABLED])
 
-    def btn_update_disable(self, *args, **kwargs) -> None:
+    def btn_update_disable(self) -> None:
         self.btn_update.state([tk.DISABLED])
 
-    @staticmethod
-    def __btn_update_action(*args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_LIST_UPDATE_REQUESTED)
-
-    def btns_enable_on_fill_list(self, *args, **kwargs) -> None:
+    def btns_enable_on_fill_list(self) -> None:
         self.btn_clear.state(["!" + tk.DISABLED])
         self.btn_uninstall.state(["!" + tk.DISABLED])
         self.btn_reinstall.state(["!" + tk.DISABLED])
         self.btn_enable.state(["!" + tk.DISABLED])
         self.btn_disable.state(["!" + tk.DISABLED])
 
-    def btns_disable_on_clear_list(self, *args, **kwargs) -> None:
+    def btns_disable_on_clear_list(self) -> None:
         self.btn_clear.state([tk.DISABLED])
         self.btn_uninstall.state([tk.DISABLED])
         self.btn_reinstall.state([tk.DISABLED])
@@ -170,13 +169,13 @@ class FramePackages(ttk.LabelFrame):
         self.btn_disable.state([tk.DISABLED])
 
     def __btn_uninstall_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_UNINSTALL_REQUESTED, package_ids=self.get_selection())
+        pass
 
     def __btn_reinstall_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_REINSTALL_REQUESTED, package_ids=self.get_selection())
+        pass
 
     def __btn_enable_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_ENABLE_REQUESTED, package_ids=self.get_selection())
+        pass
 
     def __btn_disable_action(self, *args, **kwargs) -> None:
-        event_handler.fire(Event.PACKAGE_DISABLE_REQUESTED, package_ids=self.get_selection())
+        pass

@@ -19,7 +19,6 @@ class PackageManager:
 
     def __register_events(self):
         event_handler.register(Event.ACTIVE_DEVICE_UPDATED, self.clear_packages)
-        event_handler.register(Event.PACKAGE_LIST_UPDATE_REQUESTED, self.update_packages)
 
     def get_packages(self) -> list[Package]:
         return list(self.__packages.values())
