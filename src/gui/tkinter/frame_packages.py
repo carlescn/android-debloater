@@ -168,14 +168,14 @@ class FramePackages(ttk.LabelFrame):
         self.btn_enable.state([tk.DISABLED])
         self.btn_disable.state([tk.DISABLED])
 
-    def __btn_uninstall_action(self, *args, **kwargs) -> None:
-        pass
+    def __btn_uninstall_action(self) -> None:
+        self.__package_manager.uninstall_packages(self.get_selection())
 
-    def __btn_reinstall_action(self, *args, **kwargs) -> None:
-        pass
+    def __btn_reinstall_action(self) -> None:
+        self.__package_manager.reinstall_packages(self.get_selection())
 
-    def __btn_enable_action(self, *args, **kwargs) -> None:
-        pass
+    def __btn_enable_action(self) -> None:
+        self.__package_manager.enable_packages(self.get_selection())
 
-    def __btn_disable_action(self, *args, **kwargs) -> None:
-        pass
+    def __btn_disable_action(self) -> None:
+        self.__package_manager.disable_packages(self.get_selection())
